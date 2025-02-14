@@ -1,6 +1,8 @@
 import { createHelia } from "helia";
 import { unixfs } from "@helia/unixfs";
 import { multiaddr } from "@multiformats/multiaddr";
+import { webSockets } from '@libp2p/websockets';
+
 
 let helia;
 let fs;
