@@ -23,7 +23,6 @@
         try {
           ipfs = await IpfsCore.create({
             repo: "memory", // Uses in-memory storage (fixes IndexedDB issue)
-            init: { algorithm: "ed25519" },
             start: true,
             preload: { enabled: false }, // Prevents "preload.ipfs.io" issues
             config: {
