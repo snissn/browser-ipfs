@@ -1,88 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Helia IPFS Temporary Pinning</title>
     <script type="module">
-        import { createHelia } from 'https://unpkg.com/helia@5.2.1/dist/index.min.js';
-        import { unixfs } from 'https://unpkg.com/@helia/unixfs@latest/dist/index.min.js';
+      import { createHelia } from "https://unpkg.com/helia@5.2.1/dist/index.min.js";
+      import { unixfs } from "https://unpkg.com/@helia/unixfs@latest/dist/index.min.js";
 
-        let helia;
-        let fs;
+      let helia;
+      let fs;
 
-        async function initHelia() {
-            try {
-                helia = await createHelia(); // Corrected import
-                fs = unixfs(helia);
-                console.log('✅ Helia node initialized.');
-            } catch (err) {
-                console.error("❌ Failed to initialize Helia:", err);
-            }
+      async function initHelia() {
+        try {
+          helia = await createHelia(); // Corrected import
+          fs = unixfs(helia);
+          console.log("✅ Helia node initialized.");
+        } catch (err) {
+          console.error("❌ Failed to initialize Helia:", err);
+        }
+      }
+
+      async function addFile() {
+        if (!helia) {
+          alert("Helia is not initialized.");
+          return;
         }
 
-        async function addFile() {
-            if (!helia) {
-                alert("Helia is not initialized.");
-                return;
-            }
-
-            const fileInput = document.getElementById("fileInput");
-            if (!fileInput.files.length) {
-                alert("Please select a file first.");
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const fileBuffer = await file.arrayBuffer();
-            const cid = await fs.addFile({ path: file.name, content: new Uint8Array(fileBuffer) });
-
-            console.log("📌 Added file CID:", cid.toString());
-            localStorage.setItem("lastCID", cid.toString());
-
-            document.getElementById("output").innerHTML = `File added: <b>${cid.toString()}</b>`;
+        const fileInput = document.getElementById("fileInput");
+        if (!fileInput.files.length) {
+          alert("Please select a file first.");
+          return;
         }
 
-        async function retrieveFile() {
-            if (!helia) {
-                alert("Helia is not initialized.");
-                return;
-            }
+        const file = fileInput.files[0];
+        const fileBuffer = await file.arrayBuffer();
+        const cid = await fs.addFile({
+          path: file.name,
+          content: new Uint8Array(fileBuffer),
+        });
 
-            const lastCID = localStorage.getItem("lastCID");
-            if (!lastCID) {
-                alert("No CID found in storage.");
-                return;
-            }
+        console.log("📌 Added file CID:", cid.toString());
+        localStorage.setItem("lastCID", cid.toString());
 
-            try {
-                const fileData = [];
-                for await (const chunk of fs.cat(lastCID)) {
-                    fileData.push(...chunk);
-                }
+        document.getElementById("output").innerHTML =
+          `File added: <b>${cid.toString()}</b>`;
+      }
 
-                const blob = new Blob([new Uint8Array(fileData)], { type: "application/octet-stream" });
-                const url = URL.createObjectURL(blob);
-
-                document.getElementById("output").innerHTML = `Retrieved file: <a href="${url}" download="retrieved_file">Download</a>`;
-            } catch (err) {
-                console.error("❌ Error retrieving file:", err);
-                alert("Failed to retrieve file.");
-            }
+      async function retrieveFile() {
+        if (!helia) {
+          alert("Helia is not initialized.");
+          return;
         }
 
-        window.onload = initHelia;
-        window.addFile = addFile;
-        window.retrieveFile = retrieveFile;
+        const lastCID = localStorage.getItem("lastCID");
+        if (!lastCID) {
+          alert("No CID found in storage.");
+          return;
+        }
+
+        try {
+          const fileData = [];
+          for await (const chunk of fs.cat(lastCID)) {
+            fileData.push(...chunk);
+          }
+
+          const blob = new Blob([new Uint8Array(fileData)], {
+            type: "application/octet-stream",
+          });
+          const url = URL.createObjectURL(blob);
+
+          document.getElementById("output").innerHTML =
+            `Retrieved file: <a href="${url}" download="retrieved_file">Download</a>`;
+        } catch (err) {
+          console.error("❌ Error retrieving file:", err);
+          alert("Failed to retrieve file.");
+        }
+      }
+
+      // ✅ Bind event listeners **inside** the module
+      document.addEventListener("DOMContentLoaded", () => {
+        document
+          .getElementById("addFileButton")
+          .addEventListener("click", addFile);
+        document
+          .getElementById("retrieveFileButton")
+          .addEventListener("click", retrieveFile);
+        initHelia(); // Initialize Helia after DOM loads
+      });
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <h2>Helia IPFS Temporary Pinning</h2>
-    <input type="file" id="fileInput">
-    <button onclick="addFile()">Add File</button>
-    <button onclick="retrieveFile()">Retrieve File</button>
+    <input type="file" id="fileInput" />
+    <button id="addFileButton">Add File</button>
+    <button id="retrieveFileButton">Retrieve File</button>
     <p id="output"></p>
-</body>
+  </body>
 </html>
-
-
