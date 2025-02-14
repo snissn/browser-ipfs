@@ -17,7 +17,7 @@
         console.log("Helia node initialized.");
       }
 
-      async function addFile() {
+      window.addFile = async function () {
         const fileInput = document.getElementById("fileInput");
         if (!fileInput.files.length) {
           alert("Please select a file first.");
@@ -36,9 +36,9 @@
 
         document.getElementById("output").innerHTML =
           `File added: <b>${cid.toString()}</b>`;
-      }
+      };
 
-      async function retrieveFile() {
+      window.retrieveFile = async function () {
         const lastCID = localStorage.getItem("lastCID");
         if (!lastCID) {
           alert("No CID found in storage.");
@@ -57,7 +57,7 @@
 
         document.getElementById("output").innerHTML =
           `Retrieved file: <a href="${url}" download="retrieved_file">Download</a>`;
-      }
+      };
 
       window.onload = initHelia;
     </script>
