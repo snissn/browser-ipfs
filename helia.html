@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Helia IPFS Temporary Pinning</title>
     <script type="module">
-        import { createHelia } from 'https://unpkg.com/helia@5.2.1/dist/index.min.js';
-        import { unixfs } from 'https://unpkg.com/@helia/unixfs@latest/dist/index.min.js';
+        import { createHelia } from 'https://unpkg.com/helia@latest';
+        import { unixfs } from 'https://unpkg.com/@helia/unixfs@latest';
 
         let helia;
         let fs;
 
         async function initHelia() {
             try {
-                helia = await createHelia(); // Corrected import
+                helia = await createHelia();
                 fs = unixfs(helia);
                 console.log('✅ Helia node initialized.');
             } catch (err) {
@@ -71,16 +71,20 @@
             }
         }
 
-        window.onload = initHelia;
-        window.addFile = addFile;
-        window.retrieveFile = retrieveFile;
+        // ✅ Bind event listeners **inside** the module
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("addFileButton").addEventListener("click", addFile);
+            document.getElementById("retrieveFileButton").addEventListener("click", retrieveFile);
+            initHelia(); // Initialize Helia after DOM loads
+        });
+
     </script>
 </head>
 <body>
     <h2>Helia IPFS Temporary Pinning</h2>
     <input type="file" id="fileInput">
-    <button onclick="addFile()">Add File</button>
-    <button onclick="retrieveFile()">Retrieve File</button>
+    <button id="addFileButton">Add File</button>
+    <button id="retrieveFileButton">Retrieve File</button>
     <p id="output"></p>
 </body>
 </html>
