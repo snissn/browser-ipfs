@@ -20,56 +20,61 @@
       let ipfs;
 
       async function startIPFS() {
-          try {
-              ipfs = await IpfsCore.create({
-                  repo: 'ipfs-' + Math.random(),  // Avoid storage issues
-                  preload: { enabled: false },  // Disable IPFS preload nodes
-                  config: {
-                      Bootstrap: [],  // Disable WebSocket bootstrap nodes
-                      Addresses: { Delegates: [] } // Disable delegates
-                     Bootstrap: [
-                  "/dns4/bootstrap.libp2p.io/tcp/443/wss/p2p/QmNnooDu7HtF7p27RTHvnrsa9d0X4y4p2DBSFhPuwYo4v5",
-                  "/dns4/bootstrap.libp2p.io/tcp/443/wss/p2p/QmVs8zGE88d4n2i7Gv5cYjHewx5zF9XtyuUKJhZr4gbVPQ",
-                  "/dns4/bootstrap.libp2p.io/tcp/443/wss/p2p/QmQCUroUodG2Cdmsw6aNQ6p4g9dTPEcf5LtnG7Nknyn6Xc"
+        try {
+          ipfs = await IpfsCore.create({
+            repo: "memory", // Uses in-memory storage (fixes IndexedDB issue)
+            init: { algorithm: "ed25519" },
+            start: true,
+            preload: { enabled: false }, // Prevents "preload.ipfs.io" issues
+            config: {
+              Bootstrap: [
+                "/dns4/bootstrap.libp2p.io/tcp/443/wss/p2p/QmNnooDu7HtF7p27RTHvnrsa9d0X4y4p2DBSFhPuwYo4v5",
+                "/dns4/bootstrap.libp2p.io/tcp/443/wss/p2p/QmVs8zGE88d4n2i7Gv5cYjHewx5zF9XtyuUKJhZr4gbVPQ",
+                "/dns4/bootstrap.libp2p.io/tcp/443/wss/p2p/QmQCUroUodG2Cdmsw6aNQ6p4g9dTPEcf5LtnG7Nknyn6Xc",
               ],
               Addresses: {
-                  Swarm: [
-                      "/dns4/bootstrap.libp2p.io/tcp/443/wss"
-                  ]
+                Swarm: ["/dns4/bootstrap.libp2p.io/tcp/443/wss"],
               },
+            },
+          });
 
-                  }
-              });
-              console.log("IPFS Node Started!", await ipfs.id());
-              document.getElementById("uploadButton").disabled = false;
-          } catch (error) {
-              console.error("IPFS Start Error:", error);
-          }
+          console.log("IPFS Node Started!", await ipfs.id());
+
+          document.getElementById("uploadButton").disabled = false;
+        } catch (error) {
+          console.error("IPFS Start Error:", error);
+        }
       }
+
+      startIPFS();
 
       async function uploadFile() {
-          if (!ipfs) {
-              alert("IPFS is not ready yet!");
-              return;
-          }
+        if (!ipfs) {
+          alert("IPFS is not ready yet!");
+          return;
+        }
 
-          const fileInput = document.getElementById("fileInput");
-          if (!fileInput.files.length) {
-              alert("Select a file first!");
-              return;
-          }
+        const fileInput = document.getElementById("fileInput");
+        if (!fileInput.files.length) {
+          alert("Select a file first!");
+          return;
+        }
 
-          const file = fileInput.files[0];
-          const result = await ipfs.add(file);
-          const cid = result.cid.toString();
-          console.log("File CID:", cid);
+        const file = fileInput.files[0];
+        const result = await ipfs.add(file);
+        const cid = result.cid.toString();
+        console.log("File CID:", cid);
 
-          document.getElementById("cidOutput").textContent = cid;
-          document.getElementById("ipfsLink").href = `https://ipfs.io/ipfs/${cid}`;
-          document.getElementById("ipfsLink").textContent = `https://ipfs.io/ipfs/${cid}`;
+        document.getElementById("cidOutput").textContent = cid;
+        document.getElementById("ipfsLink").href =
+          `https://ipfs.io/ipfs/${cid}`;
+        document.getElementById("ipfsLink").textContent =
+          `https://ipfs.io/ipfs/${cid}`;
       }
 
-      document.getElementById("uploadButton").addEventListener("click", uploadFile);
+      document
+        .getElementById("uploadButton")
+        .addEventListener("click", uploadFile);
       startIPFS();
     </script>
   </body>
