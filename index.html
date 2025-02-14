@@ -22,7 +22,7 @@
       async function startIPFS() {
         try {
           ipfs = await IpfsCore.create({
-            repo: "memory", // Uses in-memory storage (fixes IndexedDB issue)
+            repo: "ipfs-" + Math.random(), // Avoids lock errors
             start: true,
             preload: { enabled: false }, // Prevents "preload.ipfs.io" issues
             config: {
@@ -32,13 +32,13 @@
                 "/dns4/bootstrap.libp2p.io/tcp/443/wss/p2p/QmQCUroUodG2Cdmsw6aNQ6p4g9dTPEcf5LtnG7Nknyn6Xc",
               ],
               Addresses: {
-                Swarm: ["/dns4/bootstrap.libp2p.io/tcp/443/wss"],
+                Swarm: [], // REMOVE WebSocket Swarm Addresses (Fixes browser issue)
+                Delegates: [], // Prevents issues with unreachable delegate nodes
               },
             },
           });
 
           console.log("IPFS Node Started!", await ipfs.id());
-
           document.getElementById("uploadButton").disabled = false;
         } catch (error) {
           console.error("IPFS Start Error:", error);
