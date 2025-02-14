@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "@helia/unixfs": "^4.0.2",
+    "@multiformats/multiaddr": "^12.3.5",
     "helia": "^5.2.1"
   },
   "devDependencies": {

@@ -1,13 +1,28 @@
 import { createHelia } from 'helia';
 import { unixfs } from '@helia/unixfs';
+import { multiaddr } from '@multiformats/multiaddr';
 
 let helia;
 let fs;
 
 async function initHelia() {
-    helia = await createHelia();
+    helia = await createHelia({
+        libp2p: {
+            addresses: {
+                listen: [
+                    multiaddr('/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN'),
+                    multiaddr('/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa'),
+                    multiaddr('/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb'),
+                    multiaddr('/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt'),
+                    multiaddr('/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ'),
+                    multiaddr('/ip4/104.131.131.82/udp/4001/quic-v1/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ')
+                ]
+            }
+        }
+    });
+
     fs = unixfs(helia);
-    console.log('✅ Helia node initialized.');
+    console.log("✅ Helia node initialized and connected to IPFS bootstrap nodes.");
 }
 
 async function addFile() {
