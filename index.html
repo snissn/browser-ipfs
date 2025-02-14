@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser IPFS Uploader</title>
+    <script src="https://unpkg.com/ipfs-core/dist/index.min.js"></script>
+</head>
+<body>
+    <h1>Upload a File to IPFS</h1>
+    <input type="file" id="fileInput">
+    <button id="uploadButton" disabled>Upload</button>
+    <p><strong>File CID:</strong> <span id="cidOutput"></span></p>
+    <p><strong>View on IPFS:</strong> <a id="ipfsLink" href="#" target="_blank"></a></p>
+
+    <script>
+        let ipfs;
+
+        async function startIPFS() {
+            try {
+                ipfs = await IpfsCore.create({
+                    repo: 'ipfs-' + Math.random(),  // Avoid storage issues
+                    preload: { enabled: false },  // Disable IPFS preload nodes
+                    config: {
+                        Bootstrap: [],  // Disable WebSocket bootstrap nodes
+                        Addresses: { Delegates: [] } // Disable delegates
+                    }
+                });
+                console.log("IPFS Node Started!", await ipfs.id());
+                document.getElementById("uploadButton").disabled = false;
+            } catch (error) {
+                console.error("IPFS Start Error:", error);
+            }
+        }
+
+        async function uploadFile() {
+            if (!ipfs) {
+                alert("IPFS is not ready yet!");
+                return;
+            }
+
+            const fileInput = document.getElementById("fileInput");
+            if (!fileInput.files.length) {
+                alert("Select a file first!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const result = await ipfs.add(file);
+            const cid = result.cid.toString();
+            console.log("File CID:", cid);
+
+            document.getElementById("cidOutput").textContent = cid;
+            document.getElementById("ipfsLink").href = `https://ipfs.io/ipfs/${cid}`;
+            document.getElementById("ipfsLink").textContent = `https://ipfs.io/ipfs/${cid}`;
+        }
+
+        document.getElementById("uploadButton").addEventListener("click", uploadFile);
+        startIPFS();
+    </script>
+</body>
+</html>
+
+
