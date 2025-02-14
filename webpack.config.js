@@ -4,11 +4,11 @@ module.exports = {
     entry: './src/index.js',
     output: {
         filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'public'), // 🔥 Change `dist` to `public`
     },
-    mode: 'development', // Change to 'production' for optimized builds
+    mode: 'development',
     devServer: {
-        static: './dist',
+        static: './public', // 🔥 Serve from `public`
         port: 8080,
     },
     module: {
@@ -33,4 +33,3 @@ module.exports = {
         },
     },
 };
-
