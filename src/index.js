@@ -1,38 +1,33 @@
 import { createHelia } from "helia";
 import { unixfs } from "@helia/unixfs";
 import { multiaddr } from "@multiformats/multiaddr";
-import { webSockets } from '@libp2p/websockets';
+import { webSockets } from "@libp2p/websockets";
+import { bootstrap } from "@libp2p/bootstrap";
+import { webRTC } from "@libp2p/webrtc";
 
+import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
 let helia;
 let fs;
+const bootstrapConfig = {
+  list: [
+    "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
+    "/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa",
+    "/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
+    "/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt",
+    "/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
+    "/ip4/104.131.131.82/udp/4001/quic-v1/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
+  ],
+};
 
 async function initHelia() {
   helia = await createHelia({
     libp2p: {
       addresses: {
-        listen: [multiaddr("/dns4/bootstrap.libp2p.io/tcp/443/wss")],
+        listen: ["/webrtc"],
       },
-      transports: [webSockets()],
-      peerDiscovery: {
-        autoDial: true, // ✅ Automatically connect to discovered peers
-        bootstrap: {
-          list: [
-            multiaddr(
-              "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZgBMjTezGAJN",
-            ),
-            multiaddr(
-              "/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa",
-            ),
-            multiaddr(
-              "/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
-            ),
-            multiaddr(
-              "/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt",
-            ),
-          ],
-        },
-      },
+      transports: [webRTC(), circuitRelayTransport({ discoverRelays: 1 })],
+      peerDiscovery: [bootstrap(bootstrapConfig)],
     },
   });
 
@@ -40,6 +35,11 @@ async function initHelia() {
   console.log(
     "✅ Helia node initialized and connected to IPFS bootstrap nodes.",
   );
+
+  setInterval(async () => {
+    const peers = await helia.libp2p.getPeers();
+    console.log("🔍 Connected Peers:", peers.length, peers);
+  }, 5000);
 }
 
 async function addFile() {
