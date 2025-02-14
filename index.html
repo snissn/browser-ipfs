@@ -1,82 +1,18 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Browser IPFS Uploader</title>
-    <script src="https://unpkg.com/ipfs-core/dist/index.min.js"></script>
-  </head>
-  <body>
-    <h1>Upload a File to IPFS</h1>
-    <input type="file" id="fileInput" />
-    <button id="uploadButton" disabled>Upload</button>
-    <p><strong>File CID:</strong> <span id="cidOutput"></span></p>
-    <p>
-      <strong>View on IPFS:</strong>
-      <a id="ipfsLink" href="#" target="_blank"></a>
-    </p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helia IPFS Browser</title>
+</head>
+<body>
+    <h2>Helia IPFS Temporary Pinning</h2>
+    <input type="file" id="fileInput">
+    <button id="addFileButton">Add File</button>
+    <button id="retrieveFileButton">Retrieve File</button>
+    <p id="output"></p>
 
-    <script>
-      let ipfs;
-
-      async function startIPFS() {
-        try {
-          ipfs = await IpfsCore.create({
-            repo: "ipfs-" + Math.random(), // Avoids lock errors
-            start: true,
-            preload: { enabled: false }, // Prevents "preload.ipfs.io" issues
-            config: {
-              Bootstrap: [
-                "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
-                "/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa",
-                "/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
-                "/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt",
-                "/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
-                "/ip4/104.131.131.82/udp/4001/quic-v1/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
-              ],
-              Addresses: {
-                Swarm: [], // REMOVE WebSocket Swarm Addresses (Fixes browser issue)
-                Delegates: [], // Prevents issues with unreachable delegate nodes
-              },
-            },
-          });
-
-          console.log("IPFS Node Started!", await ipfs.id());
-          document.getElementById("uploadButton").disabled = false;
-        } catch (error) {
-          console.error("IPFS Start Error:", error);
-        }
-      }
-
-      startIPFS();
-
-      async function uploadFile() {
-        if (!ipfs) {
-          alert("IPFS is not ready yet!");
-          return;
-        }
-
-        const fileInput = document.getElementById("fileInput");
-        if (!fileInput.files.length) {
-          alert("Select a file first!");
-          return;
-        }
-
-        const file = fileInput.files[0];
-        const result = await ipfs.add(file);
-        const cid = result.cid.toString();
-        console.log("File CID:", cid);
-
-        document.getElementById("cidOutput").textContent = cid;
-        document.getElementById("ipfsLink").href =
-          `https://ipfs.io/ipfs/${cid}`;
-        document.getElementById("ipfsLink").textContent =
-          `https://ipfs.io/ipfs/${cid}`;
-      }
-
-      document
-        .getElementById("uploadButton")
-        .addEventListener("click", uploadFile);
-    </script>
-  </body>
+    <script type="module" src="./index.js"></script>
+</body>
 </html>
+
